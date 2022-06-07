@@ -185,4 +185,5 @@ let appointmentThree = new MedicalExamination(
 	"11/1/2022",
 	"11:11"
 );
+
 appointmentThree.doMedicalExamination();
