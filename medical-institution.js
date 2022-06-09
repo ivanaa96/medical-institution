@@ -7,16 +7,25 @@ function randomDate(start, end) {
 		start.getTime() + Math.random() * (end.getTime() - start.getTime())
 	);
 }
-class Patient {
-	doctor = "";
-	myAppointments = [];
-	constructor(name, surname, healthCardNumber, JMBG) {
+
+class Person {
+	constructor(name, surname) {
+		if (this.constructor === Person) {
+			throw new Error("Abstract class Person cannot be instantiated!");
+		}
 		this.name = name;
 		this.surname = surname;
+	}
+}
+class Patient extends Person {
+	constructor(name, surname, healthCardNumber, jmbg) {
+		super(name, surname);
 		this.healthCardNumber = healthCardNumber;
-		this.JMBG = JMBG;
+		this.jmbg = jmbg;
 		Logger.logCreationOfPatient(this);
 	}
+	doctor = "";
+	myAppointments = [];
 
 	chooseDoctor(doctor) {
 		this.doctor = doctor;
@@ -29,10 +38,9 @@ class Patient {
 	}
 }
 
-class Doctor {
+class Doctor extends Person {
 	constructor(name, surname, specialization) {
-		this.name = name;
-		this.surname = surname;
+		super(name, surname);
 		this.specialization = specialization;
 		Logger.logCreationOfDoctor(this);
 	}
@@ -53,7 +61,7 @@ class Logger {
 	static logCreationOfPatient(patient) {
 		console.log(
 			getDateTime(),
-			`${patient.name} ${patient.surname} with health card number ${patient.healthCardNumber} and Unique ID ${patient.JMBG} was just created and added to the database.`
+			`${patient.name} ${patient.surname} with health card number ${patient.healthCardNumber} and Unique ID ${patient.jmbg} was just created and added to the database.`
 		);
 	}
 	static logCreationOfDoctor(doctor) {
@@ -90,61 +98,73 @@ class Logger {
 		);
 	}
 }
+
 class MedicalExamination {
-	constructor(doctor, patient, type, date, time) {
+	constructor(doctor, patient, date, time) {
+		if (this.constructor === MedicalExamination) {
+			throw new Error(
+				"Abstract class MedicalExamination cannot be instantiated!"
+			);
+		}
 		this.doctor = doctor;
 		this.patient = patient;
-		this.type = type;
 		this.date = date;
 		this.time = time;
 		doctor.scheduleAppointment(this);
 		patient.addAppointment(this);
 	}
-	finalMedicalExaminationType = "";
-
-	typesOfMedicalExaminations = {
-		"blood pressure": ["upper value", "lower value", "pulse"],
-		"blood sugar level": ["value", "last meal"],
-		"cholesterol level": ["value", "last meal"],
-	};
+	doMedicalExamination() {}
+}
+class BloodPressureExamination extends MedicalExamination {
+	constructor(doctor, patient, date, time) {
+		super(doctor, patient, date, time);
+		this.typeOfExamination = "blood pressure test";
+		this.upperValue = Math.random() * 150;
+		this.lowerValue = Math.random() * 60;
+		this.pulse = Math.random() * 100;
+	}
 
 	doMedicalExamination() {
 		Logger.logTheStart();
-		switch (this.type) {
-			case "blood pressure":
-				this.finalMedicalExaminationType =
-					this.typesOfMedicalExaminations["blood pressure"];
-				break;
-			case "blood sugar level":
-				this.finalMedicalExaminationType =
-					this.typesOfMedicalExaminations["blood sugar level"];
-				break;
-			case "cholesterol level":
-				this.finalMedicalExaminationType =
-					this.typesOfMedicalExaminations["cholesterol level"];
-				break;
-		}
-
-		if (this.type === "blood pressure") {
-			this.finalMedicalExaminationType[0] = `Upper value: ${
-				Math.random() * 150
-			}`;
-			this.finalMedicalExaminationType[1] = `Lower value: ${
-				Math.random() * 60
-			}`;
-			this.finalMedicalExaminationType[2] = `Pulse: ${Math.random() * 100}`;
-		} else {
-			this.finalMedicalExaminationType[0] = `Value: ${Math.random() * 200}`;
-			this.finalMedicalExaminationType[1] = `Last meal: ${randomDate(
-				new Date(2012, 0, 1),
-				new Date()
-			)}`;
-		}
 
 		console.log(
-			`Patient ${this.patient.name} ${this.patient.surname} has had a medical examination for ${this.type}. The results are: \n ${this.finalMedicalExaminationType}. \n Date of the examination: ${this.date}. Doctor ${this.doctor.name} was assigned to this patient.`
+			`Patient ${this.patient.name} ${this.patient.surname} has had a medical examination for ${this.typeOfExamination}. 
+			The results are: \n
+			Upper value:${this.upperValue}. \n
+			Lower value:${this.lowerValue}. \n
+			Pulse:${this.pulse}. \n
+			Date of the examination: ${this.date}. \n
+			Doctor ${this.doctor.name} was assigned to this patient.`
 		);
 		Logger.finishAppointment(this.patient, this.doctor);
+	}
+}
+
+class BloodSugarLevelExamination extends MedicalExamination {
+	constructor(doctor, patient, date, time) {
+		super(doctor, patient, date, time);
+		this.typeOfExamination = "blood sugar level";
+		this.value = Math.random() * 200;
+		this.lastMeal = randomDate(new Date(2012, 0, 1), new Date());
+	}
+
+	doMedicalExamination() {
+		Logger.logTheStart();
+
+		console.log(
+			`Patient ${this.patient.name} ${this.patient.surname} has had a medical examination for ${this.typeOfExamination}. The results are: \n
+			Value:${this.value}. \n
+			Last meal:${this.lastMeal}. \n
+			Date of the examination: ${this.date}. Doctor ${this.doctor.name} was assigned to this patient.`
+		);
+		Logger.finishAppointment(this.patient, this.doctor);
+	}
+}
+
+class CholesterolLevelExamination extends BloodSugarLevelExamination {
+	constructor(doctor, patient, date, time) {
+		super(doctor, patient, date, time);
+		this.typeOfExamination = "cholesterol level";
 	}
 }
 
@@ -158,31 +178,29 @@ patientTwo.chooseDoctor(doctorOne);
 doctorOne.addPatients(patientOne);
 doctorOne.addPatients(patientTwo);
 
-let appointmentOne = new MedicalExamination(
+let appointmentOne = new BloodPressureExamination(
 	doctorOne,
 	patientOne,
-	"cholesterol level",
 	"22/2/2022",
 	"10:00"
 );
 
 appointmentOne.doMedicalExamination();
 
-let appointmentTwo = new MedicalExamination(
+let appointmentTwo = new BloodSugarLevelExamination(
 	doctorOne,
 	patientOne,
-	"blood sugar level",
 	"25/2/2022",
 	"09:00"
 );
 
 appointmentTwo.doMedicalExamination();
 
-let appointmentThree = new MedicalExamination(
+let appointmentThree = new CholesterolLevelExamination(
 	doctorOne,
 	patientTwo,
-	"blood pressure",
 	"11/1/2022",
 	"11:11"
 );
+
 appointmentThree.doMedicalExamination();
