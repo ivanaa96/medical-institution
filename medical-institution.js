@@ -119,27 +119,22 @@ class BloodPressureExamination extends MedicalExamination {
 	constructor(doctor, patient, date, time) {
 		super(doctor, patient, date, time);
 		this.typeOfExamination = "blood pressure test";
+		this.upperValue = Math.random() * 150;
+		this.lowerValue = Math.random() * 60;
+		this.pulse = Math.random() * 100;
 	}
 
 	doMedicalExamination() {
 		Logger.logTheStart();
 
-		let results = [
-			`Upper value: ${Math.random() * 150}, 
-         Lower value: ${Math.random() * 60}, 
-         Pulse: ${Math.random() * 100}`,
-		];
-
 		console.log(
-			`Patient ${this.patient.name} ${
-				this.patient.surname
-			} has had a medical examination for ${
-				this.typeOfExamination
-			}. The results are: ${results.map(
-				(result) => result
-			)}. \n Date of the examination: ${this.date}. Doctor ${
-				this.doctor.name
-			} was assigned to this patient.`
+			`Patient ${this.patient.name} ${this.patient.surname} has had a medical examination for ${this.typeOfExamination}. 
+			The results are: \n
+			Upper value:${this.upperValue}. \n
+			Lower value:${this.lowerValue}. \n
+			Pulse:${this.pulse}. \n
+			Date of the examination: ${this.date}. \n
+			Doctor ${this.doctor.name} was assigned to this patient.`
 		);
 		Logger.finishAppointment(this.patient, this.doctor);
 	}
@@ -149,26 +144,18 @@ class BloodSugarLevelExamination extends MedicalExamination {
 	constructor(doctor, patient, date, time) {
 		super(doctor, patient, date, time);
 		this.typeOfExamination = "blood sugar level";
+		this.value = Math.random() * 200;
+		this.lastMeal = randomDate(new Date(2012, 0, 1), new Date());
 	}
 
 	doMedicalExamination() {
 		Logger.logTheStart();
 
-		let results = [
-			`Value: ${Math.random() * 200},
-         Last meal: ${randomDate(new Date(2012, 0, 1), new Date())}`,
-		];
-
 		console.log(
-			`Patient ${this.patient.name} ${
-				this.patient.surname
-			} has had a medical examination for ${
-				this.typeOfExamination
-			}. The results are: ${results.map(
-				(result) => result
-			)}. \n Date of the examination: ${this.date}. Doctor ${
-				this.doctor.name
-			} was assigned to this patient.`
+			`Patient ${this.patient.name} ${this.patient.surname} has had a medical examination for ${this.typeOfExamination}. The results are: \n
+			Value:${this.value}. \n
+			Last meal:${this.lastMeal}. \n
+			Date of the examination: ${this.date}. Doctor ${this.doctor.name} was assigned to this patient.`
 		);
 		Logger.finishAppointment(this.patient, this.doctor);
 	}
